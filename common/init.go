@@ -26,6 +26,11 @@ func printHelp() {
 
 func Init() {
 	flag.Parse()
+	// 增加这一段：让程序支持 Vercel 动态端口
+      if os.Getenv("PORT") != "" {
+            port, _ := strconv.Atoi(os.Getenv("PORT"))
+            *Port = port
+        }
 
 	if *PrintVersion {
 		fmt.Println(Version)
