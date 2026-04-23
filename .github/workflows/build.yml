@@ -1,30 +1,36 @@
 name: Build Frontend
 on:
   workflow_dispatch: # 允许手动点按钮运行
+  push:
+    branches:
+      - main # 每次推送代码也自动运行
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 赋予脚本写代码的权限
+      contents: write
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+      
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-
+          node-version: 20
+          
       - name: Build Frontend
         run: |
           cd web
           npm install
+          # 这里增加一个清理，确保是干净的编译
+          rm -rf build
           npm run build
-
+          
       - name: Commit and Push
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # 强制添加 build 文件夹，即使它被 .gitignore 忽略了
           git add web/build -f
-          git commit -m "chore: auto build frontend"
+          git commit -m "chore: build frontend [skip ci]" || echo "No changes to commit"
           git push
