@@ -48,17 +48,28 @@ func Init() {
 		SQLitePath = os.Getenv("SQLITE_PATH")
 	}
 	if *LogDir != "" {
-		var err error
-		*LogDir, err = filepath.Abs(*LogDir)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if _, err := os.Stat(*LogDir); os.IsNotExist(err) {
-			err = os.Mkdir(*LogDir, 0777)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		logger.LogDir = *LogDir
-	}
+             // Vercel 环境兼容：强制将日志目录指向 /tmp
+             if os.Getenv("VERCEL") != "" {
+                 *LogDir = "/tmp"
+             }
+             
+             var err error
+             *LogDir, err = filepath.Abs(*LogDir)
+             if err != nil {
+                log.Fatal(err)
+            }
+            if _, err := os.Stat(*LogDir); os.IsNotExist(err) {
+                err = os.Mkdir(*LogDir, 0777)
+                if err != nil {
+                    // 在 Vercel 上即使创建失败也不要让程序崩溃
+                    if os.Getenv("VERCEL") != "" {
+                        fmt.Printf("Warning: failed to create log dir: %v\n", err)
+                    } else {
+                        log.Fatal(err)
+                    }
+                }
+            }
+            logger.LogDir = *LogDir
+       }
+
 }
