@@ -81,15 +81,16 @@ func chooseDB(envName string) (*gorm.DB, error) {
 }
 
 func openPostgreSQL(dsn string) (*gorm.DB, error) {
-	logger.SysLog("using PostgreSQL as database")
-	common.UsingPostgreSQL = true
-	return gorm.Open(postgres.New(postgres.Config{
-		DSN:                  dsn,
-		PreferSimpleProtocol: true, // disables implicit prepared statement usage
-	}), &gorm.Config{
-		PrepareStmt: true, // precompile SQL
-	})
-}
+         logger.SysLog("using PostgreSQL as database")
+         common.UsingPostgreSQL = true
+         return gorm.Open(postgres.New(postgres.Config{
+             DSN:                  dsn,
+             PreferSimpleProtocol: true, // disables implicit prepared statement usage
+         }), &gorm.Config{
+             PrepareStmt: false, // 必须改为 false，以兼容 Supabase 连接池
+         })
+    }
+
 
 func openMySQL(dsn string) (*gorm.DB, error) {
 	logger.SysLog("using MySQL as database")
