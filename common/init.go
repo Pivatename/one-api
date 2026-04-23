@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv" // <--- 必须加上这一行
 )
 
 var (
